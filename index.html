@@ -261,18 +261,17 @@
       color: var(--accent-gold);
     }
 
-    /* STACK CARD UI DESIGN & DYNAMIC HEIGHT FIX */
+/* STACK CARD UI DESIGN & LAYOUT FIX */
     .stack-wrapper {
       position: relative;
       width: 100%;
-      margin-bottom: 3.5rem;
-      transition: height 0.3s ease;
+      display: grid;
+      grid-template-areas: "stack";
+      margin-bottom: 2.5rem;
     }
 
     .stack-card {
-      position: absolute;
-      top: 0;
-      left: 0;
+      grid-area: stack;
       width: 100%;
       box-sizing: border-box;
       background: var(--card-bg);
@@ -280,45 +279,25 @@
       border-radius: 16px;
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      transform: translateY(calc(var(--offset, 0) * 10px)) scale(calc(1 - (var(--offset, 0) * 0.03)));
+      transform: translateY(calc(var(--offset, 0) * 12px)) scale(calc(1 - (var(--offset, 0) * 0.03)));
       z-index: calc(100 - var(--offset, 0));
       opacity: calc(1 - (var(--offset, 0) * 0.25));
       transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-color 0.3s ease;
       pointer-events: auto;
     }
 
-    .stack-card[style*="--offset: 0"] {
-      border-color: rgba(255, 184, 0, 0.4);
-    }
-
-    .stack-card.hidden-card {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(30px) scale(0.9);
-    }
-
-    @media (max-width: 600px) {
-      .section-header-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .stack-controls {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .stack-card {
-        padding: 1.25rem;
-      }
-    }
-
     .empty-stack-card {
-      background: rgba(17, 22, 34, 0.6);
+      grid-area: stack;
+      width: 100%;
+      box-sizing: border-box;
+      background: var(--card-bg);
       border: 1px dashed var(--card-border);
       border-radius: 16px;
-      padding: 2.5rem;
+      padding: 2rem;
       text-align: center;
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
     }
 
     .card-meta {
