@@ -210,6 +210,13 @@
       .form-group.full-width { grid-column: span 1; }
     }
   </style>
+  <!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://hsdfxbthgvxzjtyjeedd.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZGZ4YnRoZ3Z4emp0eWplZWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExMjUwODUsImV4cCI6MjEwNjcwMTA4NX0.aML_aRQsRKgGg8QGYdgkGB-6TO95qqqtBtNtNcNvf5o';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
 </head>
 <body>
 
@@ -530,6 +537,53 @@
       checkAuth();
       loadAdminData();
     });
+    async function saveProjectToDatabase(projectData) {
+  try {
+    // 1. Insert into Supabase 'projects' table
+    const { data, error } = await supabaseClient
+      .from('projects')
+      .insert([{
+        title: projectData.title,
+        category: projectData.tech || projectData.category || 'SYSTEM ARCHITECTURE',
+        description: projectData.desc || projectData.description,
+        project_url: projectData.link || projectData.project_url
+      }]);
+
+    if (error) throw error;
+
+    // 2. Also keep LocalStorage in sync
+    let localProjects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
+    localProjects.push(projectData);
+    localStorage.setItem('portfolio_projects', JSON.stringify(localProjects));
+
+    alert('Project published live to database successfully!');
+  } catch (err) {
+    console.error('Error saving to Supabase:', err);
+    alert('Failed to save to database. Check console for details.');
+  }
+}
+async function deleteProject(projectId, localIndex) {
+  try {
+    if (projectId) {
+      const { error } = await supabaseClient
+        .from('projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) console.error('Error deleting from DB:', error);
+    }
+
+    // Sync LocalStorage
+    let localProjects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
+    localProjects.splice(localIndex, 1);
+    localStorage.setItem('portfolio_projects', JSON.stringify(localProjects));
+
+    alert('Project deleted successfully!');
+    location.reload();
+  } catch (err) {
+    console.error('Delete error:', err);
+  }
+}
   </script>
 </body>
 </html>
