@@ -208,12 +208,13 @@
     }
 
     /* NUMBERED SECTION HEADERS & STACK CONTROLS */
-    .section-header-bar {
+.section-header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 4rem;
-      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
     }
 
     .section-title {
@@ -244,15 +245,15 @@
     }
 
     .ctrl-btn {
-      padding: 6px 12px;
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--card-border);
-      border-radius: 6px;
       color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.75rem;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .ctrl-btn:hover {
@@ -260,11 +261,12 @@
       color: var(--accent-gold);
     }
 
-/* STACK CARD UI DESIGN */
+    /* STACK CARD UI DESIGN & DYNAMIC HEIGHT FIX */
     .stack-wrapper {
       position: relative;
-      min-height: 240px;
-      margin-bottom: 3rem;
+      width: 100%;
+      margin-bottom: 3.5rem;
+      transition: height 0.3s ease;
     }
 
     .stack-card {
@@ -272,12 +274,13 @@
       top: 0;
       left: 0;
       width: 100%;
+      box-sizing: border-box;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      transform: translateY(calc(var(--offset, 0) * 12px)) scale(calc(1 - (var(--offset, 0) * 0.03)));
+      transform: translateY(calc(var(--offset, 0) * 10px)) scale(calc(1 - (var(--offset, 0) * 0.03)));
       z-index: calc(100 - var(--offset, 0));
       opacity: calc(1 - (var(--offset, 0) * 0.25));
       transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-color 0.3s ease;
@@ -291,7 +294,21 @@
     .stack-card.hidden-card {
       opacity: 0;
       pointer-events: none;
-      transform: translateY(40px) scale(0.9);
+      transform: translateY(30px) scale(0.9);
+    }
+
+    @media (max-width: 600px) {
+      .section-header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .stack-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .stack-card {
+        padding: 1.25rem;
+      }
     }
 
     .empty-stack-card {
