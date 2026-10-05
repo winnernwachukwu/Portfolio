@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winner Chisom Nwachukwu | Systems & Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080B11;
+      --card-bg: #111622;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gold: #FFB800;
+      --accent-gold-hover: #E0A200;
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* TERMINAL LOADING OVERLAY */
+    #startup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-dark);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .loader-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 1.5rem;
+    }
+
+    .loader-title span { color: var(--accent-gold); }
+
+    .loader-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      height: 20px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 3.5rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo span { color: var(--accent-gold); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(255, 184, 0, 0.04);
+      border: 1px solid rgba(255, 184, 0, 0.25);
+      border-radius: 20px;
+      color: var(--accent-gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--accent-gold);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-gold);
+    }
+
+    /* HERO SECTION */
+    .hero {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin-bottom: 5rem;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 280px;
+      height: 280px;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .version-tag {
+      position: absolute;
+      bottom: -10px;
+      right: -10px;
+      background: var(--bg-dark);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(255, 184, 0, 0.06);
+      border: 1px solid rgba(255, 184, 0, 0.25);
+      border-radius: 20px;
+      color: var(--accent-gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+      letter-spacing: -1px;
+    }
+
+    .hero-bio {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.65;
+      margin-bottom: 1.75rem;
+    }
+
+    .social-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      transform: translateY(-2px);
+    }
+
+    /* NUMBERED SECTION HEADERS & STACK CONTROLS */
+    .section-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-num {
+      color: var(--accent-gold);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stack-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stack-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .ctrl-btn {
+      padding: 6px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ctrl-btn:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    /* STACK CARD UI DESIGN */
+    .stack-wrapper {
+      position: relative;
+      margin-bottom: 3rem;
+    }
+
+    .stack-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stack-card:hover {
+      border-color: rgba(255, 184, 0, 0.4);
+    }
+
+    .empty-stack-card {
+      background: rgba(17, 22, 34, 0.6);
+      border: 1px dashed var(--card-border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .card-meta {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-gold);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255, 184, 0, 0.1);
+      border: 1px solid var(--accent-gold);
+      border-radius: 8px;
+      color: var(--accent-gold);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .card-link-btn:hover {
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* TESTIMONIAL CARD */
+    .testimonial-quote {
+      color: #E2E8F0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .author-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent-gold);
+    }
+
+    .author-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .author-role {
+      color: var(--text-muted);
+      font-size: 0.825rem;
+    }
+
+    /* FOOTER */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 3rem;
+      padding-bottom: 2rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .secret-trigger {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+
+    .secret-trigger:hover {
+      color: var(--accent-gold);
+    }
+
+    /* SECURITY PIN MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .pin-input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+
+    .pin-input:focus { border-color: var(--accent-gold); }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-confirm { background: var(--accent-gold); color: var(--bg-dark); }
+    .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--card-border); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; }
+      .avatar-wrapper { margin: 0 auto; }
+      .hero-title { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STARTUP LOADING SEQUENCE OVERLAY -->
+  <div id="startup-overlay">
+    <div class="loader-title">Winner<span>.CDC</span></div>
+    <div class="loader-status" id="loader-status">INITIALIZING CORE SYSTEM...</div>
+  </div>
+
+  <div class="container">
+    <!-- HEADER -->
+    <header>
+      <div class="logo" id="logo-trigger">Winner<span>.CDC</span></div>
+      <div class="status-badge">
+        <span class="status-dot"></span> SYSTEM OPERATIONAL
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO SECTION -->
+      <section class="hero">
+        <div class="avatar-wrapper">
+          <img id="display-avatar" class="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Winner Chisom Nwachukwu">
+          <div class="version-tag">v2.4 Core</div>
+        </div>
+
+        <div>
+          <div class="badge-pill">ENGINEERING & MEDIA STRATEGIST</div>
+          <h1 class="hero-title">Winner Chisom Nwachukwu</h1>
+          <p id="display-bio" class="hero-bio">
+            Backend Engineer architecting resilient Node.js & PostgreSQL infrastructure, high-concurrency microservices, high-impact video campaigns, and startup growth models.
+          </p>
+
+          <div class="social-links">
+            <a id="link-github" href="https://github.com" target="_blank" class="btn">GitHub</a>
+            <a id="link-linkedin" href="https://linkedin.com" target="_blank" class="btn">LinkedIn</a>
+            <a id="link-twitter" href="https://x.com" target="_blank" class="btn">X (Twitter)</a>
+            <a id="link-instagram" href="https://instagram.com" target="_blank" class="btn">Instagram</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1. BACKEND PROJECTS SECTION -->
+      <section>
+        <div class="section-header-bar">
+          <h2 class="section-title"><span class="section-num">1.</span> Backend Architecture & Systems</h2>
+          <div class="stack-controls">
+            <span class="stack-counter" id="projects-counter">STACK 0 OF 0</span>
+            <button class="ctrl-btn">&lt; PREV</button>
+            <button class="ctrl-btn">NEXT &gt;</button>
+          </div>
+        </div>
+        <div class="stack-wrapper" id="projects-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 2. VIDEO EDITING & MOTION DESIGN SECTION -->
+      <section>
+        <div class="section-header-bar">
+          <h2 class="section-title"><span class="section-num">2.</span> Video Editing & Motion Design</h2>
+          <div class="stack-controls">
+            <span class="stack-counter" id="videos-counter">STACK 0 OF 0</span>
+            <button class="ctrl-btn">&lt; PREV</button>
+            <button class="ctrl-btn">NEXT &gt;</button>
+          </div>
+        </div>
+        <div class="stack-wrapper" id="videos-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 3. CLIENT & FOUNDER TESTIMONIALS SECTION -->
+      <section>
+        <div class="section-header-bar">
+          <h2 class="section-title"><span class="section-num">3.</span> Client & Founder Testimonials</h2>
+          <div class="stack-controls">
+            <span class="stack-counter" id="testimonials-counter">STACK 0 OF 0</span>
+            <button class="ctrl-btn">&lt; PREV</button>
+            <button class="ctrl-btn">NEXT &gt;</button>
+          </div>
+        </div>
+        <div class="stack-wrapper" id="testimonials-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Contact Section Card -->
+    <div class="card" style="background: #111622; border: 1px solid #FFB800; padding: 25px; border-radius: 10px; margin-top: 4rem; margin-bottom: 20px;">
+        <h3 style="color: #FFB800; margin-bottom: 15px; font-family: monospace;">Get In Touch</h3>
+        
+        <form action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="a82c18af-46ed-4861-b8c9-da1a7e29bd20">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; color: #fff; margin-bottom: 5px; font-size: 14px;">Your Name</label>
+                <input type="text" name="name" required style="width: 100%; padding: 12px; background: #080B11; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; color: #fff; margin-bottom: 5px; font-size: 14px;">Your Email</label>
+                <input type="email" name="email" required style="width: 100%; padding: 12px; background: #080B11; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #fff; margin-bottom: 5px; font-size: 14px;">Your Message</label>
+                <textarea name="message" rows="4" required style="width: 100%; padding: 12px; background: #080B11; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none; resize: vertical;"></textarea>
+            </div>
+            
+            <button type="submit" style="background: #FFB800; color: #080B11; font-weight: bold; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s;">
+                Send Message
+            </button>
+        </form>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div>© 2026 Winner Chisom Nwachukwu. All rights reserved.</div>
+      <div class="secret-trigger" id="footer-trigger">Node ID: #8892-SYS | System Control Console</div>
+    </footer>
+  </div>
+
+  <!-- SECURITY PIN MODAL -->
+  <div id="pin-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title">// SECURITY CLEARANCE</div>
+      <div class="modal-desc">Enter access PIN to launch Admin Console.</div>
+      <input type="password" id="pin-input" class="pin-input" maxlength="8" placeholder="••••" />
+      <div class="modal-btns">
+        <button class="modal-btn btn-cancel" onclick="closePinModal()">CANCEL</button>
+        <button class="modal-btn btn-confirm" onclick="verifyPin()">ENTER</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Terminal Startup Overlay Sequence
+    function runStartupSequence() {
+      const messages = [
+        "INITIALIZING CORE SYSTEM...",
+        "CONNECTING POSTGRESQL & REDIS...",
+        "LOADING MEDIA & MOTION ENGINE...",
+        "MOUNTING STACK ARCHITECTURE...",
+        "SYSTEM OPERATIONAL"
+      ];
+      let step = 0;
+      const statusEl = document.getElementById('loader-status');
+
+      const interval = setInterval(() => {
+        step++;
+        if (step < messages.length) {
+          statusEl.innerText = messages[step];
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            const overlay = document.getElementById('startup-overlay');
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+          }, 300);
+        }
+      }, 350);
+    }
+
+    // 2. Load and Sync Data from LocalStorage
+    function loadPortfolioData() {
+      // Bio
+      const bio = localStorage.getItem('portfolio_bio');
+      if (bio !== null && bio !== undefined && bio.trim() !== "") {
+        document.getElementById('display-bio').innerText = bio;
+      }
+
+      // Avatar Picture
+      const avatar = localStorage.getItem('portfolio_avatar');
+      if (avatar && avatar.trim() !== "") {
+        document.getElementById('display-avatar').src = avatar;
+      }
+
+      // Social Links
+      const socials = JSON.parse(localStorage.getItem('portfolio_socials') || '{}');
+      if (socials.github) document.getElementById('link-github').href = socials.github;
+      if (socials.linkedin) document.getElementById('link-linkedin').href = socials.linkedin;
+      if (socials.twitter) document.getElementById('link-twitter').href = socials.twitter;
+      if (socials.instagram) document.getElementById('link-instagram').href = socials.instagram;
+
+      // Projects Stack Rendering
+      const projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
+      const projContainer = document.getElementById('projects-container');
+      document.getElementById('projects-counter').innerText = `STACK ${projects.length} OF ${projects.length}`;
+      if (projects.length === 0) {
+        projContainer.innerHTML = `<div class="empty-stack-card">No projects added yet</div>`;
+      } else {
+        projContainer.innerHTML = projects.map(item => `
+          <div class="stack-card">
+            <div class="card-meta">// ${item.tech || 'SYSTEM ARCHITECTURE'}</div>
+            <h3 class="card-title">${item.title}</h3>
+            ${item.link ? `<a href="${item.link}" target="_blank" class="card-link-btn">View Project ↗</a>` : ''}
+            <p class="card-desc">${item.desc}</p>
+          </div>
+        `).join('');
+      }
+
+      // Videos Stack Rendering
+      const videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+      const vidContainer = document.getElementById('videos-container');
+      document.getElementById('videos-counter').innerText = `STACK ${videos.length} OF ${videos.length}`;
+      if (videos.length === 0) {
+        vidContainer.innerHTML = `<div class="empty-stack-card">No videos added yet</div>`;
+      } else {
+        vidContainer.innerHTML = videos.map(item => `
+          <div class="stack-card">
+            <div class="card-meta">// ${item.category || 'MOTION GRAPHICS'}</div>
+            <h3 class="card-title">${item.title}</h3>
+            ${item.link ? `<a href="${item.link}" target="_blank" class="card-link-btn">Watch Video ↗</a>` : ''}
+            <p class="card-desc">${item.desc}</p>
+          </div>
+        `).join('');
+      }
+
+      // Testimonials Stack Rendering
+      const testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
+      const testiContainer = document.getElementById('testimonials-container');
+      document.getElementById('testimonials-counter').innerText = `STACK ${testimonials.length} OF ${testimonials.length}`;
+      if (testimonials.length === 0) {
+        testiContainer.innerHTML = `<div class="empty-stack-card">No testimonials added yet</div>`;
+      } else {
+        testiContainer.innerHTML = testimonials.map(item => `
+          <div class="stack-card">
+            <p class="testimonial-quote">"${item.quote}"</p>
+            <div class="testimonial-author">
+              <img class="author-img" src="${item.avatar || 'https://via.placeholder.com/48'}" alt="${item.name}">
+              <div>
+                <div class="author-name">${item.name}</div>
+                <div class="author-role">${item.role}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 3. Admin PIN Security Controls
+    function openPinModal() {
+      document.getElementById('pin-modal').classList.remove('hidden');
+      document.getElementById('pin-input').value = '';
+      document.getElementById('pin-input').focus();
+    }
+
+    function closePinModal() {
+      document.getElementById('pin-modal').classList.add('hidden');
+    }
+
+    function verifyPin() {
+      const pin = document.getElementById('pin-input').value;
+      const storedPin = localStorage.getItem('admin_pin') || '1234';
+
+      if (pin === storedPin) {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        window.location.href = 'admin.html';
+      } else {
+        alert('ACCESS DENIED: Invalid Security PIN');
+        document.getElementById('pin-input').value = '';
+      }
+    }
+
+    document.getElementById('logo-trigger').addEventListener('click', openPinModal);
+    document.getElementById('footer-trigger').addEventListener('click', openPinModal);
+
+    document.getElementById('pin-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyPin();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      runStartupSequence();
+      loadPortfolioData();
+    });
+  </script>
+</body>
+</html>

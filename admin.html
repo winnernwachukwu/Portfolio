@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin System Console | Winner.CDC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080B11;
+      --card-bg: #111622;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gold: #FFB800;
+      --accent-gold-hover: #E0A200;
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 2rem;
+    }
+
+    .admin-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.5px;
+    }
+
+    .admin-title span { color: var(--accent-gold); }
+
+    .admin-subtitle {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .view-site-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--accent-gold);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .view-site-btn:hover { border-color: var(--accent-gold); }
+
+    .tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border-color: var(--accent-gold);
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width { grid-column: span 2; }
+
+    label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    input, textarea {
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent-gold); }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
+      margin-top: 1.5rem;
+      padding: 12px 24px;
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-submit:hover { background: var(--accent-gold-hover); }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+
+    .btn-delete {
+      padding: 6px 12px;
+      background: rgba(255, 85, 85, 0.15);
+      color: #FF5555;
+      border: 1px solid rgba(255, 85, 85, 0.3);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="admin-title">WINNER.CDC <span>// CMS DASHBOARD</span></div>
+        <div class="admin-subtitle">Manage dark blue & gold portfolio assets in real-time.</div>
+      </div>
+      <div class="header-actions">
+        <button onclick="changePinPrompt()" class="view-site-btn" style="color: var(--text-muted);">CHANGE PIN</button>
+        <a href="index.html" class="view-site-btn">VIEW SITE ↗</a>
+      </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('profile', event)">PROFILE & SOCIALS</button>
+      <button class="tab-btn" onclick="switchTab('testimonials', event)">TESTIMONIALS</button>
+      <button class="tab-btn" onclick="switchTab('projects', event)">PROJECTS</button>
+      <button class="tab-btn" onclick="switchTab('videos', event)">VIDEOS & MEDIA</button>
+    </div>
+
+    <!-- PROFILE & SOCIALS TAB -->
+    <div id="tab-profile" class="panel">
+      <div class="panel-title">// EDIT PROFILE INFO & SOCIAL HANDLES</div>
+      <form id="profile-form">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Bio Text</label>
+            <textarea id="input-bio" placeholder="Enter your full bio..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Avatar URL (Profile Picture)</label>
+            <input type="text" id="input-avatar" placeholder="./profile.jpg or https://...">
+          </div>
+          <div class="form-group">
+            <label>Contact Email</label>
+            <input type="email" id="input-email" placeholder="winnernwachukwu44@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>GitHub URL</label>
+            <input type="text" id="social-github" placeholder="https://github.com/yourhandle">
+          </div>
+          <div class="form-group">
+            <label>LinkedIn URL</label>
+            <input type="text" id="social-linkedin" placeholder="https://linkedin.com/in/yourhandle">
+          </div>
+          <div class="form-group">
+            <label>X (Twitter) URL</label>
+            <input type="text" id="social-twitter" placeholder="https://x.com/yourhandle">
+          </div>
+          <div class="form-group full-width">
+            <label>Instagram URL</label>
+            <input type="text" id="social-instagram" placeholder="https://instagram.com/yourhandle">
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">SAVE PROFILE & SOCIALS</button>
+      </form>
+    </div>
+
+    <!-- TESTIMONIALS TAB -->
+    <div id="tab-testimonials" class="panel hidden">
+      <div class="panel-title">// ADD CLIENT TESTIMONIAL</div>
+      <form id="testimonial-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Client Name</label>
+            <input type="text" id="testi-name" placeholder="e.g. Alex Rivera" required>
+          </div>
+          <div class="form-group">
+            <label>Client Role / Company</label>
+            <input type="text" id="testi-role" placeholder="e.g. Founder at TechCorp" required>
+          </div>
+          <div class="form-group full-width">
+            <label>Client Picture URL</label>
+            <input type="text" id="testi-avatar" placeholder="./images/client.jpg or https://..." required>
+          </div>
+          <div class="form-group full-width">
+            <label>Testimonial Quote</label>
+            <textarea id="testi-quote" placeholder="Enter client testimonial quote..." required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">ADD TESTIMONIAL</button>
+      </form>
+
+      <div style="margin-top: 2.5rem;">
+        <div class="panel-title">// EXISTING TESTIMONIALS</div>
+        <div id="admin-testimonials-list" class="item-list"></div>
+      </div>
+    </div>
+
+    <!-- PROJECTS TAB -->
+    <div id="tab-projects" class="panel hidden">
+      <div class="panel-title">// ADD BACKEND SYSTEM PROJECT</div>
+      <form id="project-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Project Title</label>
+            <input type="text" id="proj-title" placeholder="e.g. TranzCoins Payment Engine" required>
+          </div>
+          <div class="form-group">
+            <label>Tech Category</label>
+            <input type="text" id="proj-tech" placeholder="e.g. NODE.JS & POSTGRESQL" required>
+          </div>
+          <div class="form-group full-width">
+            <label>Project URL (Google Drive, Live Demo, GitHub, etc.)</label>
+            <input type="url" id="proj-link" placeholder="https://..." required>
+          </div>
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea id="proj-desc" placeholder="Enter system architecture details..." required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">ADD PROJECT CARD</button>
+      </form>
+
+      <div style="margin-top: 2.5rem;">
+        <div class="panel-title">// EXISTING PROJECTS</div>
+        <div id="admin-projects-list" class="item-list"></div>
+      </div>
+    </div>
+
+    <!-- VIDEOS TAB -->
+    <div id="tab-videos" class="panel hidden">
+      <div class="panel-title">// ADD VIDEO & MOTION GRAPHIC CARD</div>
+      <form id="video-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Video Title</label>
+            <input type="text" id="vid-title" placeholder="e.g. CapCut Dynamic Keyframing" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="vid-category" placeholder="e.g. MOTION GRAPHICS & VOICE" required>
+          </div>
+          <div class="form-group full-width">
+            <label>Video URL (Google Drive, Social Media, etc.)</label>
+            <input type="url" id="vid-link" placeholder="https://..." required>
+          </div>
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea id="vid-desc" placeholder="Enter video details..." required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">ADD VIDEO CARD</button>
+      </form>
+
+      <div style="margin-top: 2.5rem;">
+        <div class="panel-title">// EXISTING VIDEOS</div>
+        <div id="admin-videos-list" class="item-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function checkAuth() {
+      if (sessionStorage.getItem('admin_authenticated') !== 'true') {
+        const pin = prompt("SECURITY CLEARANCE REQUIRED\nEnter Admin PIN:");
+        const storedPin = localStorage.getItem('admin_pin') || '1234';
+        if (pin === storedPin) {
+          sessionStorage.setItem('admin_authenticated', 'true');
+        } else {
+          alert("Access Denied.");
+          window.location.href = 'index.html';
+        }
+      }
+    }
+
+    function changePinPrompt() {
+      const newPin = prompt("Enter new Admin Security PIN:");
+      if (newPin && newPin.trim() !== "") {
+        localStorage.setItem('admin_pin', newPin.trim());
+        alert("Security PIN updated successfully!");
+      }
+    }
+
+    function switchTab(tabName, event) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    }
+
+    function loadAdminData() {
+      const defaultBio = "Backend Engineer architecting resilient Node.js & PostgreSQL infrastructure, high-concurrency microservices, high-impact video campaigns, and startup growth models.";
+      const savedBio = localStorage.getItem('portfolio_bio');
+      document.getElementById('input-bio').value = (savedBio !== null) ? savedBio : defaultBio;
+
+      document.getElementById('input-avatar').value = localStorage.getItem('portfolio_avatar') || "";
+      document.getElementById('input-email').value = localStorage.getItem('portfolio_email') || "winnernwachukwu44@gmail.com";
+
+      const socials = JSON.parse(localStorage.getItem('portfolio_socials') || '{}');
+      document.getElementById('social-github').value = socials.github || "https://github.com";
+      document.getElementById('social-linkedin').value = socials.linkedin || "https://linkedin.com";
+      document.getElementById('social-twitter').value = socials.twitter || "https://x.com";
+      document.getElementById('social-instagram').value = socials.instagram || "https://instagram.com";
+
+      renderAllLists();
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newBio = document.getElementById('input-bio').value;
+      localStorage.setItem('portfolio_bio', newBio);
+      localStorage.setItem('portfolio_avatar', document.getElementById('input-avatar').value);
+      localStorage.setItem('portfolio_email', document.getElementById('input-email').value);
+
+      const socials = {
+        github: document.getElementById('social-github').value,
+        linkedin: document.getElementById('social-linkedin').value,
+        twitter: document.getElementById('social-twitter').value,
+        instagram: document.getElementById('social-instagram').value,
+      };
+      localStorage.setItem('portfolio_socials', JSON.stringify(socials));
+
+      alert('Profile and social links updated successfully!');
+    });
+
+    document.getElementById('project-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('proj-title').value;
+      const tech = document.getElementById('proj-tech').value;
+      const link = document.getElementById('proj-link').value;
+      const desc = document.getElementById('proj-desc').value;
+
+      const projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
+      projects.push({ id: Date.now(), title, tech, link, desc });
+      localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+
+      document.getElementById('project-form').reset();
+      renderAllLists();
+      alert('Project card added successfully!');
+    });
+
+    document.getElementById('video-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('vid-title').value;
+      const category = document.getElementById('vid-category').value;
+      const link = document.getElementById('vid-link').value;
+      const desc = document.getElementById('vid-desc').value;
+
+      const videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+      videos.push({ id: Date.now(), title, category, link, desc });
+      localStorage.setItem('portfolio_videos', JSON.stringify(videos));
+
+      document.getElementById('video-form').reset();
+      renderAllLists();
+      alert('Video card added successfully!');
+    });
+
+    document.getElementById('testimonial-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('testi-name').value;
+      const role = document.getElementById('testi-role').value;
+      const avatar = document.getElementById('testi-avatar').value;
+      const quote = document.getElementById('testi-quote').value;
+
+      const testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
+      testimonials.push({ id: Date.now(), name, role, avatar, quote });
+      localStorage.setItem('portfolio_testimonials', JSON.stringify(testimonials));
+
+      document.getElementById('testimonial-form').reset();
+      renderAllLists();
+      alert('Testimonial card added successfully!');
+    });
+
+    function renderAllLists() {
+      const testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
+      const testiList = document.getElementById('admin-testimonials-list');
+      testiList.innerHTML = testimonials.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No testimonials added yet.</p>' :
+        testimonials.map(item => `
+          <div class="item-row">
+            <div>
+              <div style="font-weight: 700;">${item.name}</div>
+              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.role}</div>
+            </div>
+            <button class="btn-delete" onclick="deleteItem('portfolio_testimonials', ${item.id})">Delete</button>
+          </div>
+        `).join('');
+
+      const projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
+      const projList = document.getElementById('admin-projects-list');
+      projList.innerHTML = projects.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No projects added yet.</p>' :
+        projects.map(item => `
+          <div class="item-row">
+            <div>
+              <div style="font-weight: 700;">${item.title}</div>
+              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.tech}</div>
+            </div>
+            <button class="btn-delete" onclick="deleteItem('portfolio_projects', ${item.id})">Delete</button>
+          </div>
+        `).join('');
+
+      const videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+      const vidList = document.getElementById('admin-videos-list');
+      vidList.innerHTML = videos.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No videos added yet.</p>' :
+        videos.map(item => `
+          <div class="item-row">
+            <div>
+              <div style="font-weight: 700;">${item.title}</div>
+              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.category}</div>
+            </div>
+            <button class="btn-delete" onclick="deleteItem('portfolio_videos', ${item.id})">Delete</button>
+          </div>
+        `).join('');
+    }
+
+    function deleteItem(key, id) {
+      let items = JSON.parse(localStorage.getItem(key) || '[]');
+      items = items.filter(i => i.id !== id);
+      localStorage.setItem(key, JSON.stringify(items));
+      renderAllLists();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadAdminData();
+    });
+  </script>
+</body>
+</html>
