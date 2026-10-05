@@ -260,24 +260,38 @@
       color: var(--accent-gold);
     }
 
-    /* STACK CARD UI DESIGN */
+/* STACK CARD UI DESIGN */
     .stack-wrapper {
       position: relative;
+      min-height: 240px;
       margin-bottom: 3rem;
     }
 
     .stack-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 2rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      margin-bottom: 1rem;
-      transition: transform 0.3s ease, border-color 0.3s ease;
+      transform: translateY(calc(var(--offset, 0) * 12px)) scale(calc(1 - (var(--offset, 0) * 0.03)));
+      z-index: calc(100 - var(--offset, 0));
+      opacity: calc(1 - (var(--offset, 0) * 0.25));
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-color 0.3s ease;
+      pointer-events: auto;
     }
 
-    .stack-card:hover {
+    .stack-card[style*="--offset: 0"] {
       border-color: rgba(255, 184, 0, 0.4);
+    }
+
+    .stack-card.hidden-card {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(40px) scale(0.9);
     }
 
     .empty-stack-card {
@@ -523,14 +537,14 @@
         </div>
       </section>
 
-      <!-- 1. BACKEND PROJECTS SECTION -->
+<!-- 1. BACKEND PROJECTS SECTION -->
       <section>
         <div class="section-header-bar">
           <h2 class="section-title"><span class="section-num">1.</span> Backend Architecture & Systems</h2>
           <div class="stack-controls">
             <span class="stack-counter" id="projects-counter">STACK 0 OF 0</span>
-            <button class="ctrl-btn">&lt; PREV</button>
-            <button class="ctrl-btn">NEXT &gt;</button>
+            <button class="ctrl-btn" onclick="cycleStack('projects', -1)">&lt; PREV</button>
+            <button class="ctrl-btn" onclick="cycleStack('projects', 1)">NEXT &gt;</button>
           </div>
         </div>
         <div class="stack-wrapper" id="projects-container">
@@ -544,8 +558,8 @@
           <h2 class="section-title"><span class="section-num">2.</span> Video Editing & Motion Design</h2>
           <div class="stack-controls">
             <span class="stack-counter" id="videos-counter">STACK 0 OF 0</span>
-            <button class="ctrl-btn">&lt; PREV</button>
-            <button class="ctrl-btn">NEXT &gt;</button>
+            <button class="ctrl-btn" onclick="cycleStack('videos', -1)">&lt; PREV</button>
+            <button class="ctrl-btn" onclick="cycleStack('videos', 1)">NEXT &gt;</button>
           </div>
         </div>
         <div class="stack-wrapper" id="videos-container">
@@ -559,8 +573,8 @@
           <h2 class="section-title"><span class="section-num">3.</span> Client & Founder Testimonials</h2>
           <div class="stack-controls">
             <span class="stack-counter" id="testimonials-counter">STACK 0 OF 0</span>
-            <button class="ctrl-btn">&lt; PREV</button>
-            <button class="ctrl-btn">NEXT &gt;</button>
+            <button class="ctrl-btn" onclick="cycleStack('testimonials', -1)">&lt; PREV</button>
+            <button class="ctrl-btn" onclick="cycleStack('testimonials', 1)">NEXT &gt;</button>
           </div>
         </div>
         <div class="stack-wrapper" id="testimonials-container">
@@ -668,6 +682,9 @@
       if (socials.twitter) document.getElementById('link-twitter').href = socials.twitter;
       if (socials.instagram) document.getElementById('link-instagram').href = socials.instagram;
 
+// State trackers for card stack positions
+      window.stackIndices = { projects: 0, videos: 0, testimonials: 0 };
+
       // --- Projects Stack Rendering ---
       let projects = [];
       try {
@@ -686,74 +703,103 @@
         projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
       }
 
-      const projContainer = document.getElementById('projects-container');
-      document.getElementById('projects-counter').innerText = `STACK ${projects.length} OF ${projects.length}`;
-      if (projects.length === 0) {
-        projContainer.innerHTML = `<div class="empty-stack-card">No projects added yet</div>`;
-      } else {
-        projContainer.innerHTML = projects.map(item => `
-          <div class="stack-card">
-            <div class="card-meta">// ${item.tech || item.category || 'SYSTEM ARCHITECTURE'}</div>
-            <h3 class="card-title">${item.title}</h3>
-            ${(item.link || item.project_url) ? `<a href="${item.link || item.project_url}" target="_blank" class="card-link-btn">View Project ↗</a>` : ''}
-            <p class="card-desc">${item.desc || item.description || ''}</p>
-          </div>
-        `).join('');
-      }
+      renderStackSection('projects', projects, item => `
+        <div class="card-meta">// ${item.tech || item.category || 'SYSTEM ARCHITECTURE'}</div>
+        <h3 class="card-title">${item.title}</h3>
+        ${(item.link || item.project_url) ? `<a href="${item.link || item.project_url}" target="_blank" class="card-link-btn">View Project ↗</a>` : ''}
+        <p class="card-desc">${item.desc || item.description || ''}</p>
+      `);
 
-// --- Videos Stack Rendering ---
-    let videos = [];
-    try {
-      const { data: dbVideos, error } = await supabaseClient
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // --- Videos Stack Rendering ---
+      let videos = [];
+      try {
+        const { data: dbVideos, error } = await supabaseClient
+          .from('videos')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (!error && dbVideos && dbVideos.length > 0) {
-        videos = dbVideos;
-      } else {
+        if (!error && dbVideos && dbVideos.length > 0) {
+          videos = dbVideos;
+        } else {
+          videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+        }
+      } catch (err) {
         videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
       }
-    } catch (err) {
-      videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
-    }
 
-    const vidContainer = document.getElementById('videos-container');
-    document.getElementById('videos-counter').innerText = `STACK ${videos.length} OF ${videos.length}`;
-
-    if (videos.length === 0) {
-      vidContainer.innerHTML = `<div class="empty-stack-card">No videos added yet</div>`;
-    } else {
-      vidContainer.innerHTML = videos.map(item => `
-        <div class="stack-card">
-          <div class="card-meta">// ${item.category || 'MOTION GRAPHICS'}</div>
-          <h3 class="card-title">${item.title}</h3>
-          ${(item.link || item.video_url) ? `<a href="${item.link || item.video_url}" target="_blank" class="card-link-btn">Watch Video ↗</a>` : ''}
-          <p class="card-desc">${item.desc || item.description || ''}</p>
-        </div>
-      `).join('');
-    }
+      renderStackSection('videos', videos, item => `
+        <div class="card-meta">// ${item.category || 'MOTION GRAPHICS'}</div>
+        <h3 class="card-title">${item.title}</h3>
+        ${(item.link || item.video_url) ? `<a href="${item.link || item.video_url}" target="_blank" class="card-link-btn">Watch Video ↗</a>` : ''}
+        <p class="card-desc">${item.desc || item.description || ''}</p>
+      `);
 
       // --- Testimonials Stack Rendering ---
       let testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
-      const testiContainer = document.getElementById('testimonials-container');
-      document.getElementById('testimonials-counter').innerText = `STACK ${testimonials.length} OF ${testimonials.length}`;
-      if (testimonials.length === 0) {
-        testiContainer.innerHTML = `<div class="empty-stack-card">No testimonials added yet</div>`;
-      } else {
-        testiContainer.innerHTML = testimonials.map(item => `
-          <div class="stack-card">
-            <p class="testimonial-quote">"${item.quote}"</p>
-            <div class="testimonial-author">
-              <img class="author-img" src="${item.avatar || 'https://via.placeholder.com/48'}" alt="${item.name}">
-              <div>
-                <div class="author-name">${item.name}</div>
-                <div class="author-role">${item.role}</div>
-              </div>
-            </div>
+      renderStackSection('testimonials', testimonials, item => `
+        <p class="testimonial-quote">"${item.quote}"</p>
+        <div class="testimonial-author">
+          <img class="author-img" src="${item.avatar || 'https://via.placeholder.com/48'}" alt="${item.name}">
+          <div>
+            <div class="author-name">${item.name}</div>
+            <div class="author-role">${item.role}</div>
           </div>
-        `).join('');
+        </div>
+      `);
+    }
+
+    // Stack rendering and positioning helper
+    function renderStackSection(type, items, cardTemplate) {
+      const container = document.getElementById(`${type}-container`);
+      const counter = document.getElementById(`${type}-counter`);
+
+      if (!items || items.length === 0) {
+        counter.innerText = `STACK 0 OF 0`;
+        container.innerHTML = `<div class="empty-stack-card">No entries added yet</div>`;
+        return;
       }
+
+      const activeIdx = window.stackIndices[type] || 0;
+      counter.innerText = `CARD ${activeIdx + 1} OF ${items.length}`;
+
+      container.innerHTML = items.map((item, idx) => {
+        const offset = idx - activeIdx;
+        const isHidden = offset < 0 ? 'hidden-card' : '';
+        const offsetVal = offset >= 0 ? offset : 0;
+
+        return `
+          <div class="stack-card ${isHidden}" style="--offset: ${offsetVal};">
+            ${cardTemplate(item)}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Stack navigation controller
+    function cycleStack(type, direction) {
+      const container = document.getElementById(`${type}-container`);
+      const cards = container.querySelectorAll('.stack-card');
+      if (cards.length <= 1) return;
+
+      let currentIdx = window.stackIndices[type] || 0;
+      currentIdx += direction;
+
+      if (currentIdx < 0) currentIdx = cards.length - 1;
+      if (currentIdx >= cards.length) currentIdx = 0;
+
+      window.stackIndices[type] = currentIdx;
+
+      document.getElementById(`${type}-counter`).innerText = `CARD ${currentIdx + 1} OF ${cards.length}`;
+
+      cards.forEach((card, idx) => {
+        const offset = idx - currentIdx;
+        if (offset < 0) {
+          card.classList.add('hidden-card');
+        } else {
+          card.classList.remove('hidden-card');
+          card.style.setProperty('--offset', offset);
+        }
+      });
     }
 
     // 3. Admin PIN Security Controls
