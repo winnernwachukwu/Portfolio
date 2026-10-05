@@ -701,22 +701,38 @@
         `).join('');
       }
 
-      // --- Videos Stack Rendering ---
-      let videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
-      const vidContainer = document.getElementById('videos-container');
-      document.getElementById('videos-counter').innerText = `STACK ${videos.length} OF ${videos.length}`;
-      if (videos.length === 0) {
-        vidContainer.innerHTML = `<div class="empty-stack-card">No videos added yet</div>`;
+// --- Videos Stack Rendering ---
+    let videos = [];
+    try {
+      const { data: dbVideos, error } = await supabaseClient
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && dbVideos && dbVideos.length > 0) {
+        videos = dbVideos;
       } else {
-        vidContainer.innerHTML = videos.map(item => `
-          <div class="stack-card">
-            <div class="card-meta">// ${item.category || 'MOTION GRAPHICS'}</div>
-            <h3 class="card-title">${item.title}</h3>
-            ${item.link ? `<a href="${item.link}" target="_blank" class="card-link-btn">Watch Video ↗</a>` : ''}
-            <p class="card-desc">${item.desc}</p>
-          </div>
-        `).join('');
+        videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
       }
+    } catch (err) {
+      videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+    }
+
+    const vidContainer = document.getElementById('videos-container');
+    document.getElementById('videos-counter').innerText = `STACK ${videos.length} OF ${videos.length}`;
+
+    if (videos.length === 0) {
+      vidContainer.innerHTML = `<div class="empty-stack-card">No videos added yet</div>`;
+    } else {
+      vidContainer.innerHTML = videos.map(item => `
+        <div class="stack-card">
+          <div class="card-meta">// ${item.category || 'MOTION GRAPHICS'}</div>
+          <h3 class="card-title">${item.title}</h3>
+          ${(item.link || item.video_url) ? `<a href="${item.link || item.video_url}" target="_blank" class="card-link-btn">Watch Video ↗</a>` : ''}
+          <p class="card-desc">${item.desc || item.description || ''}</p>
+        </div>
+      `).join('');
+    }
 
       // --- Testimonials Stack Rendering ---
       let testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');

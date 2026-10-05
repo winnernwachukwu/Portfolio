@@ -453,22 +453,21 @@
       alert('Project card added successfully!');
     });
 
-    document.getElementById('video-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const title = document.getElementById('vid-title').value;
-      const category = document.getElementById('vid-category').value;
-      const link = document.getElementById('vid-link').value;
-      const desc = document.getElementById('vid-desc').value;
+document.getElementById('video-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = document.getElementById('vid-title').value;
+  const category = document.getElementById('vid-category').value;
+  const link = document.getElementById('vid-link').value;
+  const desc = document.getElementById('vid-desc').value;
 
-      const videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
-      videos.push({ id: Date.now(), title, category, link, desc });
-      localStorage.setItem('portfolio_videos', JSON.stringify(videos));
+  const videoData = { title, category, link, desc };
 
-      document.getElementById('video-form').reset();
-      renderAllLists();
-      alert('Video card added successfully!');
-    });
+  // Save live to Supabase database
+  await saveVideoToDatabase(videoData);
 
+  document.getElementById('video-form').reset();
+  renderAllLists();
+});
     document.getElementById('testimonial-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('testi-name').value;
@@ -582,6 +581,30 @@ async function deleteProject(projectId, localIndex) {
     location.reload();
   } catch (err) {
     console.error('Delete error:', err);
+  }
+}
+async function saveVideoToDatabase(videoData) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('videos')
+      .insert([{
+        title: videoData.title,
+        category: videoData.category || 'MOTION GRAPHICS',
+        description: videoData.desc || videoData.description,
+        video_url: videoData.link || videoData.video_url
+      }]);
+
+    if (error) throw error;
+
+    // Keep LocalStorage in sync as fallback
+    let localVideos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
+    localVideos.push(videoData);
+    localStorage.setItem('portfolio_videos', JSON.stringify(localVideos));
+
+    alert('Video published live to database successfully!');
+  } catch (err) {
+    console.error('Error saving video:', err);
+    alert('Failed to save video to database.');
   }
 }
   </script>
