@@ -1,612 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin System Console | Winner.CDC</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-dark: #080B11;
-      --card-bg: #111622;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-gold: #FFB800;
-      --accent-gold-hover: #E0A200;
-      --text-main: #FFFFFF;
-      --text-muted: #94A3B8;
-    }
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin · Winner.CDC</title>
+<style>
+:root{--bg:#090d19;--s:#0f1528;--ln:rgba(255,255,255,.1);--tx:#e9ebf2;--mu:#8f98b0;--ac:#c9a24d;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 40px}
+h1,h2,h3{font-family:Georgia,serif;font-weight:500;margin:0}[hidden]{display:none!important}
+.wrap{max-width:820px;margin:auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:5;background:rgba(9,13,25,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--ln);padding:10px 0}
+.top .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.top h1{font-size:20px;margin-right:auto}.top h1 i{color:var(--ac);font-style:normal}
+#st{font-size:13px;color:var(--mu)}
+button,.bt{font:inherit;font-size:14px;color:var(--tx);background:none;border:1px solid var(--ln);border-radius:99px;padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.bt:hover{border-color:var(--ac)}.pri{background:var(--tx);color:#090d19;border-color:var(--tx);font-weight:600}.pri:hover{background:var(--ac);border-color:var(--ac)}.sm{padding:5px 11px;font-size:13px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:14px 0;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs button{white-space:nowrap}.tabs button.on{background:var(--ac);color:#090d19;border-color:var(--ac)}
+.demo{background:#2a2412;border:1px solid var(--ac);border-radius:12px;padding:10px 14px;margin:14px 0;font-size:14px}
+.f{margin:0 0 16px}.f label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+input,textarea,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:rgba(255,255,255,.04);border:1px solid var(--ln);border-radius:12px;padding:11px 13px;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--ac)}textarea{min-height:96px;resize:vertical}input[type=checkbox]{width:22px;height:22px}input[type=file]{margin-top:8px;font-size:14px;padding:8px}
+select option{background:#0f1528}.hint{font-size:13px;color:var(--mu);margin:-4px 0 16px}
+.card{background:var(--s);border:1px solid var(--ln);border-radius:18px;padding:16px;margin-bottom:16px}.card .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}.card .row b{margin-right:auto;font-family:Georgia,serif;font-weight:500}
+.lh{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
+.thumb{width:64px;height:64px;border-radius:12px;background:#1b2244 center/cover;border:1px solid var(--ln);margin-bottom:8px}
+.box{max-width:380px;margin:18vh auto 0;padding:0 16px}.box .card{padding:24px}.err{color:#e5636d;font-size:14px;min-height:20px}
+.msg{border-bottom:1px solid var(--ln);padding:14px 0}.msg small{color:var(--mu)}.msg p{white-space:pre-wrap;margin:6px 0 10px}
+</style></head><body>
+<div id="lg" class="box" hidden><div class="card"><h2 style="margin-bottom:6px">Admin</h2><p class="hint" style="margin-top:0">Winner.CDC portfolio</p>
+<div class="f"><label>Email</label><input id="le" type="email" autocomplete="username"></div>
+<div class="f"><label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></div>
+<button class="pri" onclick="login()">Log in</button><p class="err" id="er"></p></div></div>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<div id="app" hidden>
+<div class="top"><div class="wrap"><h1>Winner<i>.</i>CDC admin</h1><span id="st"></span><button class="pri" onclick="save()">Save</button><a class="bt" href="./" target="_blank">View site ↗</a><button onclick="out()" id="so">Sign out</button></div></div>
+<div class="wrap"><div class="demo" id="dm" hidden><b>Preview mode.</b> This is how the admin looks. Nothing is saved until Supabase is connected in config.js.</div><div class="tabs" id="tb"></div><div id="mn"></div></div>
+</div>
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      padding: 2rem 1.5rem;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 2rem;
-    }
-
-    .admin-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: -0.5px;
-    }
-
-    .admin-title span { color: var(--accent-gold); }
-
-    .admin-subtitle {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      margin-top: 4px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .view-site-btn {
-      padding: 8px 16px;
-      background: transparent;
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: var(--accent-gold);
-      text-decoration: none;
-      font-size: 0.8rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-    }
-
-    .view-site-btn:hover { border-color: var(--accent-gold); }
-
-    .tabs {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      padding: 10px 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn.active {
-      background: var(--accent-gold);
-      color: var(--bg-dark);
-      border-color: var(--accent-gold);
-    }
-
-    .panel {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .panel-title {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--accent-gold);
-      font-size: 0.9rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-group.full-width { grid-column: span 2; }
-
-    label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    input, textarea {
-      background: var(--bg-dark);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 12px;
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    input:focus, textarea:focus { border-color: var(--accent-gold); }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .btn-submit {
-      margin-top: 1.5rem;
-      padding: 12px 24px;
-      background: var(--accent-gold);
-      color: var(--bg-dark);
-      border: none;
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      text-transform: uppercase;
-    }
-
-    .btn-submit:hover { background: var(--accent-gold-hover); }
-
-    .item-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: var(--bg-dark);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-    }
-
-    .btn-delete {
-      padding: 6px 12px;
-      background: rgba(255, 85, 85, 0.15);
-      color: #FF5555;
-      border: 1px solid rgba(255, 85, 85, 0.3);
-      border-radius: 6px;
-      font-size: 0.75rem;
-      cursor: pointer;
-    }
-
-    .hidden { display: none !important; }
-
-    @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full-width { grid-column: span 1; }
-    }
-  </style>
-  <!-- Supabase Client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script><script src="defaults.js"></script>
 <script>
-  const SUPABASE_URL = 'https://hsdfxbthgvxzjtyjeedd.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZGZ4YnRoZ3Z4emp0eWplZWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExMjUwODUsImV4cCI6MjEwNjcwMTA4NX0.aML_aRQsRKgGg8QGYdgkGB-6TO95qqqtBtNtNcNvf5o';
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
-</head>
-<body>
+const $=s=>document.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e};
+const C=window.SB||{},DEMO=!C.url,sb=DEMO?null:supabase.createClient(C.url,C.key);
+const merge=(d,x)=>{const o={...d};for(const k in x)o[k]=(x[k]&&typeof x[k]==='object'&&!Array.isArray(x[k]))?{...d[k],...x[k]}:x[k];return o};
+let D=JSON.parse(JSON.stringify(DEFAULTS)),tab=0,dirty=false;
+const gp=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k],o);
+function sp(o,p,v){const k=p.split('.');let a=o;k.slice(0,-1).forEach(x=>a=a[x]=a[x]||{});a[k[k.length-1]]=v}
+const mark=()=>{dirty=true;$('#st').textContent='Unsaved changes'};
+addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 
-  <div class="container">
-    <header>
-      <div>
-        <div class="admin-title">WINNER.CDC <span>// CMS DASHBOARD</span></div>
-        <div class="admin-subtitle">Manage dark blue & gold portfolio assets in real-time.</div>
-      </div>
-      <div class="header-actions">
-        <button onclick="changePinPrompt()" class="view-site-btn" style="color: var(--text-muted);">CHANGE PIN</button>
-        <a href="index.html" class="view-site-btn">VIEW SITE ↗</a>
-      </div>
-    </header>
+/* What each tab edits. Fields: [path, type, label, options] (types: text, area, img, file, check, select, list) */
+const TH=[[0,'Brand (navy + gold)'],[1,'Trust (blue)'],[2,'Excitement (amber)'],[3,'Calm (green)'],[4,'Pride (red)']];
+const S=[
+['Profile & links',[
+ ['hero.eyebrow','text','Small line above the headline'],
+ ['hero.headline','area','Headline (put *stars* around words to colour them, e.g. *backend,*)'],
+ ['hero.lead','area','Short intro under the headline'],
+ ['links.x','text','X (Twitter) link'],['links.linkedin','text','LinkedIn link'],['links.github','text','GitHub link'],
+ ['links.extra','list','More social pages (Instagram, TikTok, YouTube...)',[['label','text','Name, e.g. Instagram'],['url','text','Link']]],
+ ['links.cv','file','CV download (paste a link, or upload your PDF)'],
+ ['links.email','text','Contact email']]],
+['Projects',[['projects','list','Projects (backend and video)',[
+ ['type','select','Type',[['tech','Backend / tech project'],['video','Video / creative project']]],
+ ['title','text','Project name'],['desc','area','One-line description'],['problem','area','The problem'],['built','area','What I built (backend projects)'],
+ ['tags','text','Tags, separated by commas'],['status','select','Status',[['','No badge'],['live','In production (live)'],['wip','In progress'],['concept','Concept']]],['link','text','GitHub link (use "Fill from GitHub" below)'],['live','text','Live website link (fill in when it is in production)'],['video','text','Video link (YouTube, Drive...)'],
+ ['image','img','Cover picture (optional)'],
+ ['demo','select','Interactive demo on the card',[['','None'],['stock','Stock tracker demo (Ward to Web)'],['phone','Phone video demo (Tap and Shop)']]],
+ ['beats','area','Phone demo captions, separated by | (4 lines)']]]]],
+['Testimonials',[['testimonials','list','Testimonials',[['q','area','What they said (their real words)'],['n','text','Their name'],['r','text','Role, company'],['p','img','Their photo']]]]],
+['Terminal questions',[['faq','list','Questions and answers',[['q','text','Question'],['a','area','Answer'],['go','check','After this answer, open the contact form']]]]],
+['Bio & About',[
+ ['about.photo','img','Your photo'],['about.h','text','Heading'],['about.q','area','Big opening line'],['about.b','area','Bio paragraph'],
+ ['contact.h','text','Contact heading'],['contact.s','text','Contact text'],['contact.photo','img','Round photo at the end']]],
+['Process & stack',[
+ ['process.backend','list','How I work: backend steps',[['n','text','Step name'],['d','text','What happens'],['w','text','Width (a number, bigger = wider)']]],
+ ['process.video','list','How I work: video steps',[['n','text','Step name'],['d','text','What happens'],['w','text','Width (a number, bigger = wider)']]],
+ ['stack','list','Stack cards',[['t','text','Title'],['s','text','Small line'],['c','text','Items, separated by commas']]],
+ ['marquee.a','text','Moving line 1 (commas)'],['marquee.b','text','Moving line 2 (commas)']]],
+['Page colour',[['theme','select','Default colour of the site',TH]]],
+['Inbox',null]];
 
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('profile', event)">PROFILE & SOCIALS</button>
-      <button class="tab-btn" onclick="switchTab('testimonials', event)">TESTIMONIALS</button>
-      <button class="tab-btn" onclick="switchTab('projects', event)">PROJECTS</button>
-      <button class="tab-btn" onclick="switchTab('videos', event)">VIDEOS & MEDIA</button>
-    </div>
+async function up(file){if(!file)return'';if(DEMO)return URL.createObjectURL(file);
+ const n=Date.now()+'-'+file.name.replace(/[^\w.-]/g,'_');const r=await sb.storage.from('media').upload(n,file,{contentType:file.type});
+ if(r.error){alert('Upload failed: '+r.error.message);return''}return sb.storage.from('media').getPublicUrl(n).data.publicUrl}
 
-    <!-- PROFILE & SOCIALS TAB -->
-    <div id="tab-profile" class="panel">
-      <div class="panel-title">// EDIT PROFILE INFO & SOCIAL HANDLES</div>
-      <form id="profile-form">
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label>Bio Text</label>
-            <textarea id="input-bio" placeholder="Enter your full bio..."></textarea>
-          </div>
-          <div class="form-group">
-            <label>Avatar URL (Profile Picture)</label>
-            <input type="text" id="input-avatar" placeholder="./profile.jpg or https://...">
-          </div>
-          <div class="form-group">
-            <label>Contact Email</label>
-            <input type="email" id="input-email" placeholder="winnernwachukwu44@gmail.com">
-          </div>
-          <div class="form-group">
-            <label>GitHub URL</label>
-            <input type="text" id="social-github" placeholder="https://github.com/yourhandle">
-          </div>
-          <div class="form-group">
-            <label>LinkedIn URL</label>
-            <input type="text" id="social-linkedin" placeholder="https://linkedin.com/in/yourhandle">
-          </div>
-          <div class="form-group">
-            <label>X (Twitter) URL</label>
-            <input type="text" id="social-twitter" placeholder="https://x.com/yourhandle">
-          </div>
-          <div class="form-group full-width">
-            <label>Instagram URL</label>
-            <input type="text" id="social-instagram" placeholder="https://instagram.com/yourhandle">
-          </div>
-        </div>
-        <button type="submit" class="btn-submit">SAVE PROFILE & SOCIALS</button>
-      </form>
-    </div>
+function fld(label,type,val,set,opts){const w=el('div','f','<label>'+label+'</label>');let i;
+ if(type==='area'){i=el('textarea');i.value=val||''}
+ else if(type==='select'){i=el('select');opts.forEach(o=>i.add(new Option(o[1],o[0])));i.value=val===undefined?opts[0][0]:val}
+ else if(type==='check'){i=el('input');i.type='checkbox';i.checked=!!val}
+ else{i=el('input');i.value=val||''}
+ i.oninput=i.onchange=()=>{let v=type==='check'?i.checked:i.value;if(type==='select'){const o=opts.find(o=>String(o[0])===v);v=o[0]}set(v);mark()};
+ if(type==='img'){const t=el('div','thumb');if(val)t.style.backgroundImage=`url("${val}")`;w.appendChild(t)}
+ w.appendChild(i);
+ if(type==='img'||type==='file'){const f=el('input');f.type='file';if(type==='img')f.accept='image/*';f.onchange=async()=>{$('#st').textContent='Uploading…';const u=await up(f.files[0]);$('#st').textContent='';if(u){i.value=u;set(u);mark();if(type==='img')show(tab)}};w.appendChild(f)}
+ return w}
 
-    <!-- TESTIMONIALS TAB -->
-    <div id="tab-testimonials" class="panel hidden">
-      <div class="panel-title">// ADD CLIENT TESTIMONIAL</div>
-      <form id="testimonial-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Client Name</label>
-            <input type="text" id="testi-name" placeholder="e.g. Alex Rivera" required>
-          </div>
-          <div class="form-group">
-            <label>Client Role / Company</label>
-            <input type="text" id="testi-role" placeholder="e.g. Founder at TechCorp" required>
-          </div>
-          <div class="form-group full-width">
-            <label>Client Picture URL</label>
-            <input type="text" id="testi-avatar" placeholder="./images/client.jpg or https://..." required>
-          </div>
-          <div class="form-group full-width">
-            <label>Testimonial Quote</label>
-            <textarea id="testi-quote" placeholder="Enter client testimonial quote..." required></textarea>
-          </div>
-        </div>
-        <button type="submit" class="btn-submit">ADD TESTIMONIAL</button>
-      </form>
+async function gh(it){const m=(it.link||'').match(/github\.com\/([^\/]+)\/([^\/#?]+)/);if(!m)return alert('Paste a GitHub repo link in the GitHub link box first.');
+ try{const r=await fetch('https://api.github.com/repos/'+m[1]+'/'+m[2].replace(/\.git$/,''));if(!r.ok)throw 0;const j=await r.json();
+ it.type=it.type||'tech';it.title=it.title||j.name.replace(/[-_]/g,' ');it.desc=it.desc||j.description||'';it.tags=it.tags||[j.language].concat(j.topics||[]).filter(Boolean).join(', ');mark();show(tab)}catch(e){alert('Could not read that repo. Make sure it is public.')}}
 
-      <div style="margin-top: 2.5rem;">
-        <div class="panel-title">// EXISTING TESTIMONIALS</div>
-        <div id="admin-testimonials-list" class="item-list"></div>
-      </div>
-    </div>
+function list(path,label,sub){const arr=gp(D,path)||(sp(D,path,[]),gp(D,path));const box=el('div');
+ const h=el('div','lh','<h3>'+label+' ('+arr.length+')</h3>');const add=el('button','pri sm','+ Add');add.onclick=()=>{arr.push(path==='projects'?{type:'tech',title:'',desc:'',problem:'',built:'',tags:'',link:'',live:'',status:'wip',video:'',image:'',demo:'',beats:''}:{});mark();show(tab)};h.appendChild(add);box.appendChild(h);
+ arr.forEach((it,n)=>{const c=el('div','card');const r=el('div','row','<b>#'+(n+1)+' '+(it.title||it.q||it.n||it.label||it.t||'New')+'</b>');
+ const mv=d=>{const j=n+d;if(j<0||j>=arr.length)return;[arr[n],arr[j]]=[arr[j],arr[n]];mark();show(tab)};
+ [['↑',()=>mv(-1)],['↓',()=>mv(1)],['Delete',()=>{if(confirm('Delete this?')){arr.splice(n,1);mark();show(tab)}}]].forEach(([t,f])=>{const b=el('button','sm',t);b.onclick=f;r.appendChild(b)});c.appendChild(r);
+ sub.forEach(([k,ty,lb,o])=>c.appendChild(fld(lb,ty,it[k],v=>it[k]=v,o)));
+ if(path==='projects'){const b=el('button','sm','Fill from GitHub');b.onclick=()=>gh(it);c.appendChild(b)}
+ box.appendChild(c)});return box}
 
-    <!-- PROJECTS TAB -->
-    <div id="tab-projects" class="panel hidden">
-      <div class="panel-title">// ADD BACKEND SYSTEM PROJECT</div>
-      <form id="project-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Project Title</label>
-            <input type="text" id="proj-title" placeholder="e.g. TranzCoins Payment Engine" required>
-          </div>
-          <div class="form-group">
-            <label>Tech Category</label>
-            <input type="text" id="proj-tech" placeholder="e.g. NODE.JS & POSTGRESQL" required>
-          </div>
-          <div class="form-group full-width">
-            <label>Project URL (Google Drive, Live Demo, GitHub, etc.)</label>
-            <input type="url" id="proj-link" placeholder="https://..." required>
-          </div>
-          <div class="form-group full-width">
-            <label>Description</label>
-            <textarea id="proj-desc" placeholder="Enter system architecture details..." required></textarea>
-          </div>
-        </div>
-        <button type="submit" class="btn-submit">ADD PROJECT CARD</button>
-      </form>
+function show(k){tab=k;const y=scrollY;$$('#tb button').forEach((b,i)=>b.classList.toggle('on',i===k));const m=$('#mn');m.innerHTML='';const fs=S[k][1];if(!fs){inbox();return}
+ fs.forEach(([p,ty,lb,o])=>m.appendChild(ty==='list'?list(p,lb,o):fld(lb,ty,gp(D,p),v=>sp(D,p,v),o)));scrollTo(0,y)}
+const $$=s=>[...document.querySelectorAll(s)];
+S.forEach((s,i)=>{const b=el('button','',s[0]);b.onclick=()=>show(i);$('#tb').appendChild(b)});
 
-      <div style="margin-top: 2.5rem;">
-        <div class="panel-title">// EXISTING PROJECTS</div>
-        <div id="admin-projects-list" class="item-list"></div>
-      </div>
-    </div>
+async function inbox(){const m=$('#mn');if(DEMO){m.innerHTML='<p class="hint">Messages from your contact form will appear here once Supabase is connected.</p>';return}
+ m.innerHTML='<p class="hint">Loading…</p>';const r=await sb.from('messages').select('*').order('created_at',{ascending:false});
+ if(r.error){m.innerHTML='<p class="err">'+r.error.message+'</p>';return}
+ m.innerHTML=r.data.length?'':'<p class="hint">No messages yet.</p>';
+ r.data.forEach(x=>{const d=el('div','msg');d.appendChild(el('b','',''));d.firstChild.textContent=x.name;d.appendChild(el('small','',''));d.lastChild.textContent=' · '+x.email+' · '+new Date(x.created_at).toLocaleString();
+ const p=el('p');p.textContent=x.message;d.appendChild(p);const a=el('a','bt sm','Reply');a.href='mailto:'+x.email;d.appendChild(a);
+ const b=el('button','sm','Delete');b.style.marginLeft='8px';b.onclick=async()=>{if(confirm('Delete this message?')){await sb.from('messages').delete().eq('id',x.id);inbox()}};d.appendChild(b);m.appendChild(d)})}
 
-    <!-- VIDEOS TAB -->
-    <div id="tab-videos" class="panel hidden">
-      <div class="panel-title">// ADD VIDEO & MOTION GRAPHIC CARD</div>
-      <form id="video-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Video Title</label>
-            <input type="text" id="vid-title" placeholder="e.g. CapCut Dynamic Keyframing" required>
-          </div>
-          <div class="form-group">
-            <label>Category</label>
-            <input type="text" id="vid-category" placeholder="e.g. MOTION GRAPHICS & VOICE" required>
-          </div>
-          <div class="form-group full-width">
-            <label>Video URL (Google Drive, Social Media, etc.)</label>
-            <input type="url" id="vid-link" placeholder="https://..." required>
-          </div>
-          <div class="form-group full-width">
-            <label>Description</label>
-            <textarea id="vid-desc" placeholder="Enter video details..." required></textarea>
-          </div>
-        </div>
-        <button type="submit" class="btn-submit">ADD VIDEO CARD</button>
-      </form>
+async function save(){if(DEMO){$('#st').textContent='Preview mode: nothing saved';return}
+ $('#st').textContent='Saving…';const r=await sb.from('site_content').upsert({id:1,data:D,updated_at:new Date().toISOString()});
+ if(r.error){$('#st').textContent='Save failed: '+r.error.message;return}dirty=false;$('#st').textContent='Saved. Live for everyone.'}
 
-      <div style="margin-top: 2.5rem;">
-        <div class="panel-title">// EXISTING VIDEOS</div>
-        <div id="admin-videos-list" class="item-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function checkAuth() {
-      if (sessionStorage.getItem('admin_authenticated') !== 'true') {
-        const pin = prompt("SECURITY CLEARANCE REQUIRED\nEnter Admin PIN:");
-        const storedPin = localStorage.getItem('admin_pin') || '1234';
-        if (pin === storedPin) {
-          sessionStorage.setItem('admin_authenticated', 'true');
-        } else {
-          alert("Access Denied.");
-          window.location.href = 'index.html';
-        }
-      }
-    }
-
-    function changePinPrompt() {
-      const newPin = prompt("Enter new Admin Security PIN:");
-      if (newPin && newPin.trim() !== "") {
-        localStorage.setItem('admin_pin', newPin.trim());
-        alert("Security PIN updated successfully!");
-      }
-    }
-
-    function switchTab(tabName, event) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-
-      event.target.classList.add('active');
-      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-    }
-
-    function loadAdminData() {
-      const defaultBio = "Backend Engineer architecting resilient Node.js & PostgreSQL infrastructure, high-concurrency microservices, high-impact video campaigns, and startup growth models.";
-      const savedBio = localStorage.getItem('portfolio_bio');
-      document.getElementById('input-bio').value = (savedBio !== null) ? savedBio : defaultBio;
-
-      document.getElementById('input-avatar').value = localStorage.getItem('portfolio_avatar') || "";
-      document.getElementById('input-email').value = localStorage.getItem('portfolio_email') || "winnernwachukwu44@gmail.com";
-
-      const socials = JSON.parse(localStorage.getItem('portfolio_socials') || '{}');
-      document.getElementById('social-github').value = socials.github || "https://github.com";
-      document.getElementById('social-linkedin').value = socials.linkedin || "https://linkedin.com";
-      document.getElementById('social-twitter').value = socials.twitter || "https://x.com";
-      document.getElementById('social-instagram').value = socials.instagram || "https://instagram.com";
-
-      renderAllLists();
-    }
-
-    document.getElementById('profile-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newBio = document.getElementById('input-bio').value;
-      localStorage.setItem('portfolio_bio', newBio);
-      localStorage.setItem('portfolio_avatar', document.getElementById('input-avatar').value);
-      localStorage.setItem('portfolio_email', document.getElementById('input-email').value);
-
-      const socials = {
-        github: document.getElementById('social-github').value,
-        linkedin: document.getElementById('social-linkedin').value,
-        twitter: document.getElementById('social-twitter').value,
-        instagram: document.getElementById('social-instagram').value,
-      };
-      localStorage.setItem('portfolio_socials', JSON.stringify(socials));
-
-      alert('Profile and social links updated successfully!');
-    });
-
-    document.getElementById('project-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const title = document.getElementById('proj-title').value;
-      const tech = document.getElementById('proj-tech').value;
-      const link = document.getElementById('proj-link').value;
-      const desc = document.getElementById('proj-desc').value;
-
-      const projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
-      projects.push({ id: Date.now(), title, tech, link, desc });
-      localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-
-      document.getElementById('project-form').reset();
-      renderAllLists();
-      alert('Project card added successfully!');
-    });
-
-document.getElementById('video-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const title = document.getElementById('vid-title').value;
-  const category = document.getElementById('vid-category').value;
-  const link = document.getElementById('vid-link').value;
-  const desc = document.getElementById('vid-desc').value;
-
-  const videoData = { title, category, link, desc };
-
-  // Save live to Supabase database
-  await saveVideoToDatabase(videoData);
-
-  document.getElementById('video-form').reset();
-  renderAllLists();
-});
-    document.getElementById('testimonial-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('testi-name').value;
-      const role = document.getElementById('testi-role').value;
-      const avatar = document.getElementById('testi-avatar').value;
-      const quote = document.getElementById('testi-quote').value;
-
-      const testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
-      testimonials.push({ id: Date.now(), name, role, avatar, quote });
-      localStorage.setItem('portfolio_testimonials', JSON.stringify(testimonials));
-
-      document.getElementById('testimonial-form').reset();
-      renderAllLists();
-      alert('Testimonial card added successfully!');
-    });
-
-    function renderAllLists() {
-      const testimonials = JSON.parse(localStorage.getItem('portfolio_testimonials') || '[]');
-      const testiList = document.getElementById('admin-testimonials-list');
-      testiList.innerHTML = testimonials.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No testimonials added yet.</p>' :
-        testimonials.map(item => `
-          <div class="item-row">
-            <div>
-              <div style="font-weight: 700;">${item.name}</div>
-              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.role}</div>
-            </div>
-            <button class="btn-delete" onclick="deleteItem('portfolio_testimonials', ${item.id})">Delete</button>
-          </div>
-        `).join('');
-
-      const projects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
-      const projList = document.getElementById('admin-projects-list');
-      projList.innerHTML = projects.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No projects added yet.</p>' :
-        projects.map(item => `
-          <div class="item-row">
-            <div>
-              <div style="font-weight: 700;">${item.title}</div>
-              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.tech}</div>
-            </div>
-            <button class="btn-delete" onclick="deleteItem('portfolio_projects', ${item.id})">Delete</button>
-          </div>
-        `).join('');
-
-      const videos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
-      const vidList = document.getElementById('admin-videos-list');
-      vidList.innerHTML = videos.length === 0 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">No videos added yet.</p>' :
-        videos.map(item => `
-          <div class="item-row">
-            <div>
-              <div style="font-weight: 700;">${item.title}</div>
-              <div style="color: var(--text-muted); font-size: 0.8rem;">${item.category}</div>
-            </div>
-            <button class="btn-delete" onclick="deleteItem('portfolio_videos', ${item.id})">Delete</button>
-          </div>
-        `).join('');
-    }
-
-    function deleteItem(key, id) {
-      let items = JSON.parse(localStorage.getItem(key) || '[]');
-      items = items.filter(i => i.id !== id);
-      localStorage.setItem(key, JSON.stringify(items));
-      renderAllLists();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      checkAuth();
-      loadAdminData();
-    });
-    async function saveProjectToDatabase(projectData) {
-  try {
-    // 1. Insert into Supabase 'projects' table
-    const { data, error } = await supabaseClient
-      .from('projects')
-      .insert([{
-        title: projectData.title,
-        category: projectData.tech || projectData.category || 'SYSTEM ARCHITECTURE',
-        description: projectData.desc || projectData.description,
-        project_url: projectData.link || projectData.project_url
-      }]);
-
-    if (error) throw error;
-
-    // 2. Also keep LocalStorage in sync
-    let localProjects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
-    localProjects.push(projectData);
-    localStorage.setItem('portfolio_projects', JSON.stringify(localProjects));
-
-    alert('Project published live to database successfully!');
-  } catch (err) {
-    console.error('Error saving to Supabase:', err);
-    alert('Failed to save to database. Check console for details.');
-  }
-}
-async function deleteProject(projectId, localIndex) {
-  try {
-    if (projectId) {
-      const { error } = await supabaseClient
-        .from('projects')
-        .delete()
-        .eq('id', projectId);
-
-      if (error) console.error('Error deleting from DB:', error);
-    }
-
-    // Sync LocalStorage
-    let localProjects = JSON.parse(localStorage.getItem('portfolio_projects') || '[]');
-    localProjects.splice(localIndex, 1);
-    localStorage.setItem('portfolio_projects', JSON.stringify(localProjects));
-
-    alert('Project deleted successfully!');
-    location.reload();
-  } catch (err) {
-    console.error('Delete error:', err);
-  }
-}
-async function saveVideoToDatabase(videoData) {
-  try {
-    const { data, error } = await supabaseClient
-      .from('videos')
-      .insert([{
-        title: videoData.title,
-        category: videoData.category || 'MOTION GRAPHICS',
-        description: videoData.desc || videoData.description,
-        video_url: videoData.link || videoData.video_url
-      }]);
-
-    if (error) throw error;
-
-    // Keep LocalStorage in sync as fallback
-    let localVideos = JSON.parse(localStorage.getItem('portfolio_videos') || '[]');
-    localVideos.push(videoData);
-    localStorage.setItem('portfolio_videos', JSON.stringify(localVideos));
-
-    alert('Video published live to database successfully!');
-  } catch (err) {
-    console.error('Error saving video:', err);
-    alert('Failed to save video to database.');
-  }
-}
-  </script>
-</body>
-</html>
+async function boot(){$('#lg').hidden=true;$('#app').hidden=false;
+ if(!DEMO){const r=await sb.from('site_content').select('data').eq('id',1).maybeSingle();if(r.data&&r.data.data)D=merge(DEFAULTS,r.data.data)}else $('#dm').hidden=false;
+ $('#so').hidden=DEMO;show(0)}
+async function login(){$('#er').textContent='';const r=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});
+ if(r.error){$('#er').textContent=r.error.message;return}boot()}
+async function out(){await sb.auth.signOut();location.reload()}
+(async()=>{if(DEMO)return boot();const s=await sb.auth.getSession();s.data.session?boot():$('#lg').hidden=false})();
+</script></body></html>
