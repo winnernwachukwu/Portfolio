@@ -61,7 +61,7 @@ const S=[
 ['Projects',[['projects','list','Projects (backend and video)',[
  ['type','select','Type',[['tech','Backend / tech project'],['video','Video / creative project']]],
  ['title','text','Project name'],['desc','area','One-line description'],['problem','area','The problem'],['built','area','What I built (backend projects)'],
- ['tags','text','Tags, separated by commas'],['status','select','Status',[['','No badge'],['live','In production (live)'],['wip','In progress'],['concept','Concept']]],['link','text','GitHub link (use "Fill from GitHub" below)'],['live','text','Live website link (fill in when it is in production)'],['video','text','Video link (YouTube, Drive...)'],
+ ['tags','text','Tags, separated by commas'],['status','select','Status',[['','No badge'],['live','In production (live)'],['wip','In progress'],['concept','Concept']]],['link','text','GitHub link (use "Fill from GitHub" below)'],['live','text','Live website link (fill in when it is in production)'],['video','text','Video link (Google Drive set to "anyone with the link", or YouTube). It plays on the page.'],['ratio','select','Video shape',[['9:16','Vertical (9:16)'],['16:9','Wide (16:9)']]],
  ['image','img','Cover picture (optional)'],
  ['demo','select','Interactive demo on the card',[['','None'],['stock','Stock tracker demo (Ward to Web)'],['phone','Phone video demo (Tap and Shop)']]],
  ['beats','area','Phone demo captions, separated by | (4 lines)']]]]],
@@ -98,7 +98,7 @@ async function gh(it){const m=(it.link||'').match(/github\.com\/([^\/]+)\/([^\/#
  it.type=it.type||'tech';it.title=it.title||j.name.replace(/[-_]/g,' ');it.desc=it.desc||j.description||'';it.tags=it.tags||[j.language].concat(j.topics||[]).filter(Boolean).join(', ');mark();show(tab)}catch(e){alert('Could not read that repo. Make sure it is public.')}}
 
 function list(path,label,sub){const arr=gp(D,path)||(sp(D,path,[]),gp(D,path));const box=el('div');
- const h=el('div','lh','<h3>'+label+' ('+arr.length+')</h3>');const add=el('button','pri sm','+ Add');add.onclick=()=>{arr.push(path==='projects'?{type:'tech',title:'',desc:'',problem:'',built:'',tags:'',link:'',live:'',status:'wip',video:'',image:'',demo:'',beats:''}:{});mark();show(tab)};h.appendChild(add);box.appendChild(h);
+ const h=el('div','lh','<h3>'+label+' ('+arr.length+')</h3>');const add=el('button','pri sm','+ Add');add.onclick=()=>{arr.push(path==='projects'?{type:'tech',title:'',desc:'',problem:'',built:'',tags:'',link:'',live:'',status:'wip',video:'',ratio:'9:16',image:'',demo:'',beats:''}:{});mark();show(tab)};h.appendChild(add);box.appendChild(h);
  arr.forEach((it,n)=>{const c=el('div','card');const r=el('div','row','<b>#'+(n+1)+' '+(it.title||it.q||it.n||it.label||it.t||'New')+'</b>');
  const mv=d=>{const j=n+d;if(j<0||j>=arr.length)return;[arr[n],arr[j]]=[arr[j],arr[n]];mark();show(tab)};
  [['↑',()=>mv(-1)],['↓',()=>mv(1)],['Delete',()=>{if(confirm('Delete this?')){arr.splice(n,1);mark();show(tab)}}]].forEach(([t,f])=>{const b=el('button','sm',t);b.onclick=f;r.appendChild(b)});c.appendChild(r);
